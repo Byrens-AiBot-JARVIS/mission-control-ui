@@ -1,0 +1,61 @@
+// Convex API references — pointing to the deployed backend functions
+import type { FunctionReference } from 'convex/server'
+import { anyApi } from 'convex/server'
+
+export type AgentStatus = 'idle' | 'active' | 'blocked'
+export type TaskStatus = 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done'
+export type DocumentType = 'deliverable' | 'research' | 'protocol'
+
+export interface Agent {
+  _id: string
+  _creationTime: number
+  name: string
+  role: string
+  status: AgentStatus
+  currentTaskId?: string
+  sessionKey?: string
+}
+
+export interface Task {
+  _id: string
+  _creationTime: number
+  title: string
+  description: string
+  status: TaskStatus
+  assigneeIds: string[]
+}
+
+export interface Activity {
+  _id: string
+  _creationTime: number
+  type: string
+  agentId?: string
+  message: string
+  timestamp: number
+}
+
+export interface Document {
+  _id: string
+  _creationTime: number
+  title: string
+  content: string
+  type: DocumentType
+  taskId?: string
+}
+
+type ApiType = {
+  agents: {
+    list: FunctionReference<'query', 'public', Record<string, never>, Agent[]>
+  }
+  tasks: {
+    list: FunctionReference<'query', 'public', { status?: TaskStatus }, Task[]>
+  }
+  activities: {
+    listRecent: FunctionReference<'query', 'public', { limit?: number }, Activity[]>
+  }
+  documents: {
+    listAll: FunctionReference<'query', 'public', Record<string, never>, Document[]>
+  }
+}
+
+export const api = anyApi as unknown as ApiType
