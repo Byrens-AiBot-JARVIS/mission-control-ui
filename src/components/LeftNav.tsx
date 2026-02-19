@@ -1,5 +1,5 @@
 interface NavItem {
-  id: 'board' | 'calendar'
+  id: 'board' | 'calendar' | 'archive'
   icon: string
   label: string
 }
@@ -7,6 +7,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'board', icon: '📋', label: 'Task Board' },
   { id: 'calendar', icon: '📅', label: 'Calendar' },
+  { id: 'archive', icon: '🗂️', label: 'Archive' },
 ]
 
 const AGENTS = [
@@ -16,8 +17,8 @@ const AGENTS = [
 ]
 
 interface LeftNavProps {
-  activeTab: 'board' | 'calendar'
-  onTabChange: (tab: 'board' | 'calendar') => void
+  activeTab: 'board' | 'calendar' | 'archive'
+  onTabChange: (tab: 'board' | 'calendar' | 'archive') => void
 }
 
 export function LeftNav({ activeTab, onTabChange }: LeftNavProps) {

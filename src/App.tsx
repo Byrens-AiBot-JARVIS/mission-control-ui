@@ -11,6 +11,7 @@ import { DocumentsPanel } from './components/DocumentsPanel'
 import { LeftNav } from './components/LeftNav'
 import { BottomNav } from './components/BottomNav'
 import { CalendarView } from './components/CalendarView'
+import { ArchiveView } from './components/ArchiveView'
 import './App.css'
 
 function formatTime(ts: number): string {
@@ -86,12 +87,21 @@ function TaskModal({ task, onClose, agents, documents, messages }: {
   )
 }
 
-function BoardView() {
+function BoardView({ onArchiveClick }: { onArchiveClick: () => void }) {
   const agents = useQuery(api.agents.list, {}) ?? []
-  const tasks = useQuery(api.tasks.list, {}) ?? []
+  const allTasks = useQuery(api.tasks.list, {}) ?? []
+  const recentDoneTasks = useQuery(api.tasks.listRecentDone, {}) ?? []
+  const archivedCount = useQuery(api.tasks.listArchived, {})
   const activities = useQuery(api.activities.listRecent, { limit: 20 }) ?? []
   const documents = useQuery(api.documents.listAll, {}) ?? []
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+
+  // Combine: all non-done tasks + recent done tasks (excludes archived done)
+  const tasks = [
+    ...allTasks.filter(t => t.status !== 'done'),
+    ...recentDoneTasks,
+  ]
+  const archivedDoneCount = archivedCount?.length ?? 0
 
   const taskMessages = useQuery(
     api.messages.listByTask,
@@ -103,7 +113,13 @@ function BoardView() {
       <div className="board-layout">
         <div className="content-area">
           <AgentRow agents={agents} tasks={tasks} />
-          <KanbanBoard tasks={tasks} agents={agents} onTaskClick={setSelectedTask} />
+          <KanbanBoard
+            tasks={tasks}
+            agents={agents}
+            onTaskClick={setSelectedTask}
+            archivedDoneCount={archivedDoneCount}
+            onArchiveClick={onArchiveClick}
+          />
           <DocumentsPanel documents={documents} tasks={tasks} />
         </div>
         <ActivityFeed activities={activities} agents={agents} />
@@ -130,7 +146,14 @@ function App() {
 
   const isConnected = agents !== undefined
 
-  const [activeTab, setActiveTab] = useState<'board' | 'calendar'>('board')
+  const [activeTab, setActiveTab] = useState<'board' | 'calendar' | 'archive'>('board')
+  const [selectedArchiveTask, setSelectedArchiveTask] = useState<Task | null>(null)
+
+  const archiveDocuments = useQuery(api.documents.listAll, {})
+  const archiveTaskMessages = useQuery(
+    api.messages.listByTask,
+    selectedArchiveTask ? { taskId: selectedArchiveTask._id } : 'skip'
+  )
 
   return (
     <div className="app-shell">
@@ -141,11 +164,24 @@ function App() {
           {activeTab === 'board' && (
             <SummaryBar agents={agents} tasks={tasks} activities={activities} documents={documents} />
           )}
-          {activeTab === 'board' && <BoardView />}
+          {activeTab === 'board' && <BoardView onArchiveClick={() => setActiveTab('archive')} />}
           {activeTab === 'calendar' && <CalendarView />}
+          {activeTab === 'archive' && (
+            <ArchiveView onTaskClick={task => setSelectedArchiveTask(task)} />
+          )}
         </div>
       </div>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {selectedArchiveTask && (
+        <TaskModal
+          task={selectedArchiveTask}
+          onClose={() => setSelectedArchiveTask(null)}
+          agents={agents}
+          documents={archiveDocuments}
+          messages={archiveTaskMessages}
+        />
+      )}
     </div>
   )
 }

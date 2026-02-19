@@ -13,6 +13,8 @@ interface KanbanBoardProps {
   tasks: Task[]
   agents: Agent[]
   onTaskClick: (task: Task) => void
+  archivedDoneCount: number
+  onArchiveClick: () => void
 }
 
 function TaskCard({ task, agents, onClick, isInProgress, isReview, isDone }: {
@@ -54,7 +56,7 @@ function TaskCard({ task, agents, onClick, isInProgress, isReview, isDone }: {
   )
 }
 
-export function KanbanBoard({ tasks, agents, onTaskClick }: KanbanBoardProps) {
+export function KanbanBoard({ tasks, agents, onTaskClick, archivedDoneCount, onArchiveClick }: KanbanBoardProps) {
   return (
     <section className="kanban-section">
       <div className="section-label">KANBAN BOARD</div>
@@ -84,6 +86,11 @@ export function KanbanBoard({ tasks, agents, onTaskClick }: KanbanBoardProps) {
                     isDone={col.id === 'done'}
                   />
                 ))}
+                {col.id === 'done' && archivedDoneCount > 0 && (
+                  <button className="archive-counter" onClick={e => { e.stopPropagation(); onArchiveClick() }}>
+                    🗂️ {archivedDoneCount} archived
+                  </button>
+                )}
               </div>
             </div>
           )

@@ -39,6 +39,7 @@ export interface Task {
   description: string
   status: TaskStatus
   assigneeIds: string[]
+  doneAt?: number
 }
 
 export interface Activity {
@@ -74,6 +75,8 @@ type ApiType = {
   }
   tasks: {
     list: FunctionReference<'query', 'public', { status?: TaskStatus }, Task[]>
+    listRecentDone: FunctionReference<'query', 'public', { withinMs?: number }, Task[]>
+    listArchived: FunctionReference<'query', 'public', { withinMs?: number }, Task[]>
   }
   activities: {
     listRecent: FunctionReference<'query', 'public', { limit?: number }, Activity[]>
