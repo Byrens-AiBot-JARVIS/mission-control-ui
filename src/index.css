@@ -387,6 +387,8 @@ html, body {
   border-left: 2px solid rgba(245, 200, 66, 0.4);
 }
 .kanban-review .kanban-column-header { border-top: 2px solid var(--purple); }
+.kanban-blocked .kanban-column-header { border-top: 2px solid #ff4444; }
+.kanban-blocked .column-label { color: #ff4444; }
 .kanban-done .kanban-column-header { border-top: 2px solid var(--green); }
 
 .column-label {

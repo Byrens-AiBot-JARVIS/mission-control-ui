@@ -5,6 +5,7 @@ const COLUMNS: { id: TaskStatus; label: string; icon: string }[] = [
   { id: 'assigned', label: 'Assigned', icon: '📌' },
   { id: 'in_progress', label: 'In Progress', icon: '⚡' },
   { id: 'review', label: 'Review', icon: '🔍' },
+  { id: 'blocked', label: 'Blocked', icon: '🚫' },
   { id: 'done', label: 'Done', icon: '✅' },
 ]
 

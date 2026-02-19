@@ -19,7 +19,7 @@ export interface CalendarEntry {
 }
 
 export type AgentStatus = 'idle' | 'active' | 'blocked'
-export type TaskStatus = 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done'
+export type TaskStatus = 'inbox' | 'assigned' | 'in_progress' | 'review' | 'blocked' | 'done'
 export type DocumentType = 'deliverable' | 'research' | 'protocol' | 'lesson-learned' | 'knowledge'
 
 export interface Agent {
