@@ -1196,3 +1196,247 @@ html, body {
 
 .cal-detail-label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; align-self: center; }
 .cal-detail-code { font-family: var(--font-mono); font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 2px 6px; border-radius: 3px; }
+
+
+/* ===== RESPONSIVE ===== */
+
+/* ── Bottom Nav (hidden on desktop/tablet, shown on mobile) ── */
+.bottom-nav {
+  display: none;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 20px;
+  flex: 1;
+  min-height: 56px;
+  transition: color 0.15s;
+}
+
+.bottom-nav-item--active {
+  color: var(--accent);
+}
+
+.bottom-nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Mobile: < 640px ── */
+@media (max-width: 639px) {
+
+  /* 1. Hide left sidebar, show bottom nav */
+  .left-nav {
+    display: none;
+  }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-bright);
+    height: 56px;
+  }
+
+  /* Prevent content going behind bottom bar */
+  .main-content {
+    padding-bottom: 60px;
+  }
+
+  /* 2. Kanban horizontal scroll */
+  .kanban-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kanban-board {
+    grid-template-columns: repeat(5, 260px);
+    overflow-x: visible; /* parent .kanban-section handles scroll */
+    min-width: max-content;
+  }
+
+  /* 3. Agent cards stack vertically */
+  .agent-cards {
+    flex-direction: column;
+  }
+
+  .agent-card {
+    min-width: unset;
+    width: 100%;
+  }
+
+  /* 4. Board layout — activity feed moves to bottom */
+  .board-layout {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: unset;
+  }
+
+  .activity-feed {
+    position: static;
+    height: auto;
+    max-height: 300px;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  /* 5. Modals — full screen from bottom */
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  /* 6. Header — compact */
+  .header {
+    padding: 10px 16px;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .header-subtitle {
+    display: none;
+  }
+
+  .header-convex {
+    display: none;
+  }
+
+  /* 7. Summary bar — horizontal scroll */
+  .summary-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 6px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 8. Documents grid — single column */
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 9. Calendar — smaller cells */
+  .calendar-day {
+    min-height: 50px;
+    padding: 4px;
+    font-size: 11px;
+  }
+
+  .calendar-entry {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .calendar-day-num {
+    font-size: 11px;
+  }
+
+  /* 10. Touch targets — minimum 44px */
+  .left-nav-item,
+  .bottom-nav-item,
+  .task-card,
+  .doc-card,
+  .kanban-column-header {
+    min-height: 44px;
+  }
+
+  .modal-close {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 11. Prevent horizontal overflow (exceptions below) */
+  .app-shell,
+  .main-content,
+  .content-area {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .kanban-section,
+  .summary-bar {
+    overflow-x: auto;
+  }
+}
+
+/* ── Tablet: 640px – 1023px ── */
+@media (min-width: 640px) and (max-width: 1023px) {
+
+  /* 12. Left nav — icon-only sidebar */
+  .left-nav {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .left-nav-brand-text,
+  .left-nav-item-label,
+  .left-nav-agents-title,
+  .left-nav-agent-name {
+    display: none;
+  }
+
+  .left-nav-brand {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .left-nav-item {
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .left-nav-agent {
+    justify-content: center;
+  }
+
+  /* Activity feed narrower on tablet */
+  .activity-feed {
+    width: 220px;
+  }
+
+  .board-layout {
+    grid-template-columns: 1fr 220px;
+  }
+
+  /* Kanban scrollable on tablet with wider columns */
+  .kanban-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kanban-board {
+    grid-template-columns: repeat(5, 300px);
+    min-width: max-content;
+  }
+}

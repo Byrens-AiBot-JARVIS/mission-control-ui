@@ -9,6 +9,7 @@ import { KanbanBoard } from './components/KanbanBoard'
 import { ActivityFeed } from './components/ActivityFeed'
 import { DocumentsPanel } from './components/DocumentsPanel'
 import { LeftNav } from './components/LeftNav'
+import { BottomNav } from './components/BottomNav'
 import { CalendarView } from './components/CalendarView'
 import './App.css'
 
@@ -139,6 +140,7 @@ function App() {
           {activeTab === 'calendar' && <CalendarView />}
         </div>
       </div>
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   )
 }
