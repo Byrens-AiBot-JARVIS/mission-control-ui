@@ -2,6 +2,22 @@
 import type { FunctionReference } from 'convex/server'
 import { anyApi } from 'convex/server'
 
+export type CalendarType = 'cron' | 'task'
+
+export interface CalendarEntry {
+  _id: string
+  _creationTime: number
+  title: string
+  description: string
+  schedule: string
+  cronExpr: string
+  enabled: boolean
+  type: CalendarType
+  nextRunAt?: number
+  lastRunAt?: number
+  agentId: string
+}
+
 export type AgentStatus = 'idle' | 'active' | 'blocked'
 export type TaskStatus = 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done'
 export type DocumentType = 'deliverable' | 'research' | 'protocol' | 'lesson-learned' | 'knowledge'
@@ -67,6 +83,11 @@ type ApiType = {
   }
   messages: {
     listByTask: FunctionReference<'query', 'public', { taskId: string }, Message[]>
+  }
+  calendar: {
+    listAll: FunctionReference<'query', 'public', Record<string, never>, CalendarEntry[]>
+    upsertByTitle: FunctionReference<'mutation', 'public', Omit<CalendarEntry, '_id' | '_creationTime'>, string>
+    toggle: FunctionReference<'mutation', 'public', { id: string }, void>
   }
 }
 

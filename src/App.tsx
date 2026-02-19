@@ -8,6 +8,8 @@ import { AgentRow } from './components/AgentRow'
 import { KanbanBoard } from './components/KanbanBoard'
 import { ActivityFeed } from './components/ActivityFeed'
 import { DocumentsPanel } from './components/DocumentsPanel'
+import { LeftNav } from './components/LeftNav'
+import { CalendarView } from './components/CalendarView'
 import './App.css'
 
 function formatTime(ts: number): string {
@@ -60,12 +62,12 @@ function TaskModal({ task, onClose, agents, documents, messages }: {
               <p className="empty-hint">No messages for this task</p>
             )}
             {msgList.map(msg => {
-              const agent = agentList.find(a => a._id === msg.agentId)
+              const agent = agentList.find(a => a._id === msg.taskId)
               return (
                 <div key={msg._id} className="thread-message">
                   <div className="thread-meta">
                     <span className="thread-agent">{agent ? agent.name : 'System'}</span>
-                    <span className="thread-time">{formatTime(msg.timestamp)}</span>
+                    <span className="thread-time">{formatTime(msg._creationTime)}</span>
                   </div>
                   <div className="thread-content">{msg.content}</div>
                 </div>
@@ -78,35 +80,24 @@ function TaskModal({ task, onClose, agents, documents, messages }: {
   )
 }
 
-function App() {
+function BoardView() {
   const agents = useQuery(api.agents.list, {}) ?? []
   const tasks = useQuery(api.tasks.list, {}) ?? []
   const activities = useQuery(api.activities.listRecent, { limit: 20 }) ?? []
   const documents = useQuery(api.documents.listAll, {}) ?? []
-
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
-  const isConnected = agents !== undefined
-
-  // Fetch messages for selected task (skip when no task selected)
   const taskMessages = useQuery(
     api.messages.listByTask,
     selectedTask ? { taskId: selectedTask._id } : 'skip'
   )
 
   return (
-    <div className="app">
-      <Header isConnected={isConnected} />
-      <SummaryBar agents={agents} tasks={tasks} activities={activities} documents={documents} />
-
-      <div className="main-layout">
+    <>
+      <div className="board-layout">
         <div className="content-area">
           <AgentRow agents={agents} tasks={tasks} />
-          <KanbanBoard
-            tasks={tasks}
-            agents={agents}
-            onTaskClick={setSelectedTask}
-          />
+          <KanbanBoard tasks={tasks} agents={agents} onTaskClick={setSelectedTask} />
           <DocumentsPanel documents={documents} tasks={tasks} />
         </div>
         <ActivityFeed activities={activities} agents={agents} />
@@ -121,6 +112,33 @@ function App() {
           messages={taskMessages}
         />
       )}
+    </>
+  )
+}
+
+function App() {
+  const agents = useQuery(api.agents.list, {}) ?? []
+  const tasks = useQuery(api.tasks.list, {}) ?? []
+  const activities = useQuery(api.activities.listRecent, { limit: 20 }) ?? []
+  const documents = useQuery(api.documents.listAll, {}) ?? []
+
+  const isConnected = agents !== undefined
+
+  const [activeTab, setActiveTab] = useState<'board' | 'calendar'>('board')
+
+  return (
+    <div className="app-shell">
+      <Header isConnected={isConnected} />
+      <div className="app-body">
+        <LeftNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="main-content">
+          {activeTab === 'board' && (
+            <SummaryBar agents={agents} tasks={tasks} activities={activities} documents={documents} />
+          )}
+          {activeTab === 'board' && <BoardView />}
+          {activeTab === 'calendar' && <CalendarView />}
+        </div>
+      </div>
     </div>
   )
 }
