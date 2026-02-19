@@ -20,10 +20,10 @@ function cronMatchesDate(cronExpr: string, date: Date): boolean {
     if (date.getMonth() + 1 !== cronMonth) return false
   }
 
-  // Day-of-week check (0=Sun)
+  // Day-of-week check (0=Sun) — supports comma-separated values e.g. "2,4"
   if (dayOfWeek !== '*') {
-    const cronDow = parseInt(dayOfWeek)
-    if (date.getDay() !== cronDow) return false
+    const cronDows = dayOfWeek.split(',').map(d => parseInt(d.trim()))
+    if (!cronDows.includes(date.getDay())) return false
   }
 
   // Day-of-month check
