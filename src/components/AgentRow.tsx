@@ -31,7 +31,10 @@ export function AgentRow({ agents, tasks }: AgentRowProps) {
         {agents.map(agent => {
           const currentTask = tasks.find(t => t._id === agent.currentTaskId)
           return (
-            <div key={agent._id} className={`agent-card agent-${agent.status}`}>
+            <div
+              key={agent._id}
+              className={`agent-card agent-${agent.status}${agent.status === 'active' ? ' agent-card--active-glow' : ''}`}
+            >
               <div className="agent-emoji">{getEmoji(agent)}</div>
               <div className="agent-info">
                 <div className="agent-name">{agent.name}</div>
@@ -39,10 +42,16 @@ export function AgentRow({ agents, tasks }: AgentRowProps) {
                 <div className={`agent-status-badge status-${agent.status}`}>
                   {agent.status.toUpperCase()}
                 </div>
-                {currentTask && (
-                  <div className="agent-task" title={currentTask.title}>
-                    📋 {currentTask.title}
+                {currentTask ? (
+                  <div className="agent-task-block">
+                    <span className="agent-task-label">Working on</span>
+                    <div className="agent-task" title={currentTask.title}>
+                      <span className="agent-task-arrow">›</span>
+                      {currentTask.title}
+                    </div>
                   </div>
+                ) : (
+                  <div className="agent-available">Available</div>
                 )}
               </div>
             </div>

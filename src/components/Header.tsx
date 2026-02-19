@@ -7,7 +7,7 @@ export function Header({ isConnected }: HeaderProps) {
     <header className="header">
       <div className="header-left">
         <h1 className="header-title">Mission Control <span className="header-emoji">🎯</span></h1>
-        <span className="header-subtitle">Jarvis Agent Operations Dashboard</span>
+        <span className="header-subtitle">Agent Team Dashboard</span>
       </div>
       <div className="header-right">
         <div className={`live-indicator ${isConnected ? 'connected' : 'disconnected'}`}>

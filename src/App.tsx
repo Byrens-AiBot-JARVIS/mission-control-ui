@@ -3,11 +3,80 @@ import { useQuery } from 'convex/react'
 import { api } from './convex/api'
 import type { Task } from './convex/api'
 import { Header } from './components/Header'
+import { SummaryBar } from './components/SummaryBar'
 import { AgentRow } from './components/AgentRow'
 import { KanbanBoard } from './components/KanbanBoard'
 import { ActivityFeed } from './components/ActivityFeed'
 import { DocumentsPanel } from './components/DocumentsPanel'
 import './App.css'
+
+function formatTime(ts: number): string {
+  const d = new Date(ts)
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+function TaskModal({ task, onClose, agents, documents, messages }: {
+  task: Task
+  onClose: () => void
+  agents: ReturnType<typeof useQuery<typeof api.agents.list>>
+  documents: ReturnType<typeof useQuery<typeof api.documents.listAll>>
+  messages: ReturnType<typeof useQuery<typeof api.messages.listByTask>>
+}) {
+  const agentList = agents ?? []
+  const docList = documents ?? []
+  const msgList = messages ?? []
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>{task.title}</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <span className={`status-badge status-${task.status}`}>
+            {task.status.replace('_', ' ')}
+          </span>
+          <p className="modal-description">{task.description}</p>
+
+          <h3>Documents</h3>
+          <div className="modal-docs">
+            {docList
+              .filter(d => d.taskId === task._id)
+              .map(doc => (
+                <div key={doc._id} className="doc-item">
+                  <span className={`doc-type-badge doc-${doc.type}`}>{doc.type}</span>
+                  <span className="doc-title">{doc.title}</span>
+                </div>
+              ))}
+            {docList.filter(d => d.taskId === task._id).length === 0 && (
+              <p className="empty-hint">No documents attached</p>
+            )}
+          </div>
+
+          <h3>Messages</h3>
+          <div className="modal-thread">
+            {msgList.length === 0 && (
+              <p className="empty-hint">No messages for this task</p>
+            )}
+            {msgList.map(msg => {
+              const agent = agentList.find(a => a._id === msg.agentId)
+              return (
+                <div key={msg._id} className="thread-message">
+                  <div className="thread-meta">
+                    <span className="thread-agent">{agent ? agent.name : 'System'}</span>
+                    <span className="thread-time">{formatTime(msg.timestamp)}</span>
+                  </div>
+                  <div className="thread-content">{msg.content}</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function App() {
   const agents = useQuery(api.agents.list, {}) ?? []
@@ -19,9 +88,16 @@ function App() {
 
   const isConnected = agents !== undefined
 
+  // Fetch messages for selected task (skip when no task selected)
+  const taskMessages = useQuery(
+    api.messages.listByTask,
+    selectedTask ? { taskId: selectedTask._id } : 'skip'
+  )
+
   return (
     <div className="app">
       <Header isConnected={isConnected} />
+      <SummaryBar agents={agents} tasks={tasks} activities={activities} documents={documents} />
 
       <div className="main-layout">
         <div className="content-area">
@@ -37,34 +113,13 @@ function App() {
       </div>
 
       {selectedTask && (
-        <div className="modal-overlay" onClick={() => setSelectedTask(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{selectedTask.title}</h2>
-              <button className="modal-close" onClick={() => setSelectedTask(null)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <span className={`status-badge status-${selectedTask.status}`}>
-                {selectedTask.status.replace('_', ' ')}
-              </span>
-              <p className="modal-description">{selectedTask.description}</p>
-              <h3>Documents</h3>
-              <div className="modal-docs">
-                {documents
-                  .filter(d => d.taskId === selectedTask._id)
-                  .map(doc => (
-                    <div key={doc._id} className="doc-item">
-                      <span className={`doc-type-badge doc-${doc.type}`}>{doc.type}</span>
-                      <span className="doc-title">{doc.title}</span>
-                    </div>
-                  ))}
-                {documents.filter(d => d.taskId === selectedTask._id).length === 0 && (
-                  <p className="empty-hint">No documents attached</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <TaskModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          agents={agents}
+          documents={documents}
+          messages={taskMessages}
+        />
       )}
     </div>
   )

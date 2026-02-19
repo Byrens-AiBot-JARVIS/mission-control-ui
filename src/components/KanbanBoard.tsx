@@ -14,20 +14,23 @@ interface KanbanBoardProps {
   onTaskClick: (task: Task) => void
 }
 
-function TaskCard({ task, agents, onClick }: { task: Task; agents: Agent[]; onClick: () => void }) {
+function TaskCard({ task, agents, onClick, isInProgress }: { task: Task; agents: Agent[]; onClick: () => void; isInProgress?: boolean }) {
   const assignees = agents.filter(a => task.assigneeIds.includes(a._id))
   const snippet = task.description.length > 80
     ? task.description.slice(0, 80) + '…'
     : task.description
 
   return (
-    <div className="task-card" onClick={onClick}>
+    <div className={`task-card${isInProgress ? ' task-card--in-progress' : ''}`} onClick={onClick}>
       <div className="task-title">{task.title}</div>
       {snippet && <div className="task-snippet">{snippet}</div>}
       {assignees.length > 0 && (
         <div className="task-assignees">
           {assignees.map(a => (
-            <span key={a._id} className="assignee-chip">{a.name}</span>
+            <span key={a._id} className="assignee-chip">
+              <span className="assignee-dot" />
+              {a.name}
+            </span>
           ))}
         </div>
       )}
@@ -42,12 +45,13 @@ export function KanbanBoard({ tasks, agents, onTaskClick }: KanbanBoardProps) {
       <div className="kanban-board">
         {COLUMNS.map(col => {
           const colTasks = tasks.filter(t => t.status === col.id)
+          const isInProgress = col.id === 'in_progress'
           return (
-            <div key={col.id} className={`kanban-column kanban-${col.id}`}>
+            <div key={col.id} className={`kanban-column kanban-${col.id}${isInProgress ? ' kanban-column--active' : ''}`}>
               <div className="kanban-column-header">
                 <span className="column-icon">{col.icon}</span>
-                <span className="column-label">{col.label}</span>
-                <span className="column-count">{colTasks.length}</span>
+                <span className={`column-label${isInProgress ? ' column-label--active' : ''}`}>{col.label}</span>
+                <span className={`column-count${isInProgress && colTasks.length > 0 ? ' column-count--active' : ''}`}>{colTasks.length}</span>
               </div>
               <div className="kanban-cards">
                 {colTasks.length === 0 && (
@@ -59,6 +63,7 @@ export function KanbanBoard({ tasks, agents, onTaskClick }: KanbanBoardProps) {
                     task={task}
                     agents={agents}
                     onClick={() => onTaskClick(task)}
+                    isInProgress={isInProgress}
                   />
                 ))}
               </div>

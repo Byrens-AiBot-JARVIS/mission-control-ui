@@ -4,7 +4,7 @@ import { anyApi } from 'convex/server'
 
 export type AgentStatus = 'idle' | 'active' | 'blocked'
 export type TaskStatus = 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done'
-export type DocumentType = 'deliverable' | 'research' | 'protocol'
+export type DocumentType = 'deliverable' | 'research' | 'protocol' | 'lesson-learned' | 'knowledge'
 
 export interface Agent {
   _id: string
@@ -43,6 +43,15 @@ export interface Document {
   taskId?: string
 }
 
+export interface Message {
+  _id: string
+  _creationTime: number
+  taskId: string
+  agentId?: string
+  content: string
+  timestamp: number
+}
+
 type ApiType = {
   agents: {
     list: FunctionReference<'query', 'public', Record<string, never>, Agent[]>
@@ -55,6 +64,9 @@ type ApiType = {
   }
   documents: {
     listAll: FunctionReference<'query', 'public', Record<string, never>, Document[]>
+  }
+  messages: {
+    listByTask: FunctionReference<'query', 'public', { taskId: string }, Message[]>
   }
 }
 
