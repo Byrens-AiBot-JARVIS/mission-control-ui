@@ -15,7 +15,14 @@ interface KanbanBoardProps {
   onTaskClick: (task: Task) => void
 }
 
-function TaskCard({ task, agents, onClick, isInProgress }: { task: Task; agents: Agent[]; onClick: () => void; isInProgress?: boolean }) {
+function TaskCard({ task, agents, onClick, isInProgress, isReview, isDone }: {
+  task: Task
+  agents: Agent[]
+  onClick: () => void
+  isInProgress?: boolean
+  isReview?: boolean
+  isDone?: boolean
+}) {
   const assignees = agents.filter(a => task.assigneeIds.includes(a._id))
   const snippet = task.description.length > 80
     ? task.description.slice(0, 80) + '…'
@@ -34,6 +41,14 @@ function TaskCard({ task, agents, onClick, isInProgress }: { task: Task; agents:
             </span>
           ))}
         </div>
+      )}
+      {isReview && (
+        <div className="review-banner">
+          🔍 Awaiting peer review
+        </div>
+      )}
+      {isDone && (
+        <span className="reviewed-badge">Reviewed ✓</span>
       )}
     </div>
   )
@@ -64,7 +79,9 @@ export function KanbanBoard({ tasks, agents, onTaskClick }: KanbanBoardProps) {
                     task={task}
                     agents={agents}
                     onClick={() => onTaskClick(task)}
-                    isInProgress={isInProgress}
+                    isInProgress={col.id === 'in_progress'}
+                    isReview={col.id === 'review'}
+                    isDone={col.id === 'done'}
                   />
                 ))}
               </div>

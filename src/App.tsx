@@ -37,6 +37,11 @@ function TaskModal({ task, onClose, agents, documents, messages }: {
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
+          {task.status === 'review' && (
+            <div className="modal-review-banner">
+              🔍 <strong>Awaiting peer review</strong> — A reviewer will post feedback before this task closes.
+            </div>
+          )}
           <span className={`status-badge status-${task.status}`}>
             {task.status.replace('_', ' ')}
           </span>
@@ -57,7 +62,7 @@ function TaskModal({ task, onClose, agents, documents, messages }: {
             )}
           </div>
 
-          <h3>Messages</h3>
+          <h3>{task.status === 'review' ? '🔍 Review Feedback' : task.status === 'done' ? '✅ Review Thread' : 'Messages'}</h3>
           <div className="modal-thread">
             {msgList.length === 0 && (
               <p className="empty-hint">No messages for this task</p>
