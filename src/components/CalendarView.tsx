@@ -101,7 +101,9 @@ export function CalendarView() {
   // Build calendar grid for viewYear/viewMonth
   const firstDay = new Date(viewYear, viewMonth, 1)
   const lastDay = new Date(viewYear, viewMonth + 1, 0)
-  const startPad = firstDay.getDay() // 0=Sun
+  // getDay() returns 0=Sun, 1=Mon, ..., 6=Sat
+  // For Monday-first week, we need: Mon=0, Tue=1, ..., Sun=6
+  const startPad = (firstDay.getDay() + 6) % 7
   const daysInMonth = lastDay.getDate()
 
   const monthName = firstDay.toLocaleString('en-US', { month: 'long', year: 'numeric' })
@@ -146,7 +148,7 @@ export function CalendarView() {
 
       {/* Day-of-week headers */}
       <div className="calendar-grid">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
           <div key={d} className="calendar-dow">{d}</div>
         ))}
 
